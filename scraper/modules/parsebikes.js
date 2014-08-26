@@ -7,14 +7,23 @@ var pushFirebaseRecord, parseBikes;
 pushFirebaseRecord = function(buffer) {
   // var re = /var mapDataLocations = [{.+}]/;
   var re = /var\s+mapDataLocations\s*=\s*(\[.+\])\s*\;/;
-  var capture;
+  var capture, fullState, shortState = [], station;
   // buffer = 'var mapDataLocations = [{cghxzgchxgchxz}];';
   
   capture = re.exec(buffer)[1];
   // console.log(capture);
 
-  myFirebaseRef.push({timestamp: Firebase.ServerValue.TIMESTAMP, state: JSON.parse(capture)});
+  fullState = JSON.parse(capture);
 
+  // console.log('fool: ', fullState);
+  for (station in fullState) {
+    // console.log('station: ', station, ', ', fullState[station]);
+    shortState.push({ AvailableBikesCount : fullState[station].AvailableBikesCount,
+                      FreeLocksCount: fullState[station].FreeLocksCount,
+		      LocalTitle: fullState[station].LocalTitle });
+  }
+
+  myFirebaseRef.push({timestamp: Firebase.ServerValue.TIMESTAMP, state: shortState});
 }
 
 exports.parseBikes = parseBikes = function() {
