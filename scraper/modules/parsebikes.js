@@ -2,12 +2,44 @@ var https = require('https');
 var Firebase = require("firebase");
 var hash = require("string-hash");
 var myFirebaseRef = new Firebase("https://bikeshistory.firebaseio.com/states");
+var fbFullRef = new Firebase("https://bikeshistory.firebaseio.com/fullstates");
 var responseBuffer = "";
 var pushFirebaseRecord, parseBikes, d2h, conditionalPushRecord;
 
 d2h = function(d) {
   return (+d).toString(16).toUpperCase();
 }
+
+// conditionally push long record, depending on the last modification time
+conditionalPushRecord = function(fullState) {
+  var newRecord, childRef;
+// startAt(1409171793939).endAt(1409171793939).
+/*
+  myFirebaseRef.once('value',
+    function(dataSnapshot) { // success
+      console.log('Snapshot: ', dataSnapshot);
+    },
+    function(error) { // failure
+      console.log('myFirebaseRef.once("value") failed: ', error);
+    });
+*/
+
+  // console.log('pushing hard: ', fullState);
+
+  newRecord = fbFullRef.push();
+  newRecord.setWithPriority({timestamp: Firebase.ServerValue.TIMESTAMP, state: fullState},
+    Firebase.ServerValue.TIMESTAMP,
+    function(error) {
+      if (!!error) {
+        console.log('newRecord.setWithPriority failed: ', error);
+      } else {
+	childRef = fbFullRef.child("/latestWritten");
+        console.log('newRecord.setWithPriority success, writing into', childRef);
+        childRef.set(newRecord.timestamp);
+      }
+    });
+}
+
 
 pushFirebaseRecord = function(buffer) {
   // var re = /var mapDataLocations = [{.+}]/;
@@ -16,8 +48,6 @@ pushFirebaseRecord = function(buffer) {
   var newItem;
   // buffer = 'var mapDataLocations = [{cghxzgchxgchxz}];';
   
-  // conditionalPushRecord(buffer);
-
   capture = re.exec(buffer)[1];
   // console.log(capture);
 
@@ -35,18 +65,8 @@ pushFirebaseRecord = function(buffer) {
   // myFirebaseRef.push({timestamp: Firebase.ServerValue.TIMESTAMP, state: shortState});
   newItem = myFirebaseRef.push();
   newItem.setWithPriority({timestamp: Firebase.ServerValue.TIMESTAMP, state: shortState}, Firebase.ServerValue.TIMESTAMP);
-}
 
-// push either short or long record, depending on the last modification time
-conditionalPushRecord = function(buffer) {
-// startAt(1409171793939).endAt(1409171793939).
-  myFirebaseRef.once('value',
-    function(dataSnapshot) { // success
-      console.log('Snapshot: ', dataSnapshot);
-    },
-    function(error) { // failure
-      console.log('myFirebaseRef.once("value") failed: ', error);
-    });
+  // conditionalPushRecord(fullState);
 }
 
 exports.parseBikes = parseBikes = function() {
