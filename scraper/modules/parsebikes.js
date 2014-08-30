@@ -11,33 +11,39 @@ d2h = function(d) {
 }
 
 // conditionally push long record, depending on the last modification time
-conditionalPushRecord = function(fullState) {
-  var newRecord, childRef;
-// startAt(1409171793939).endAt(1409171793939).
-/*
-  myFirebaseRef.once('value',
-    function(dataSnapshot) { // success
-      console.log('Snapshot: ', dataSnapshot);
-    },
-    function(error) { // failure
-      console.log('myFirebaseRef.once("value") failed: ', error);
-    });
-*/
+conditionalPushRecord = function(fullState, currentTimestamp) {
+  var newRecord, childRef, delta;
+  var writeInterval = 86400000; // milliseconds
 
-  // console.log('pushing hard: ', fullState);
+  childRef = fbFullRef.child("latestWritten");
+  childRef.once('value', function(dataSnapshot) {
+    if (!!(dataSnapshot.val())) {
+      delta = parseInt(currentTimestamp) - parseInt(dataSnapshot.val());
+      /*console.log('retrieved latestWritten: ', parseInt(dataSnapshot.val()),
+                'delta: ', delta);*/
+    } else {
+      console.log('not retrieved latestWritten writing the record '),
+      delta = 666 + writeInterval;
+    }
 
-  newRecord = fbFullRef.push();
-  newRecord.setWithPriority({timestamp: Firebase.ServerValue.TIMESTAMP, state: fullState},
-    Firebase.ServerValue.TIMESTAMP,
-    function(error) {
-      if (!!error) {
-        console.log('newRecord.setWithPriority failed: ', error);
-      } else {
-	childRef = fbFullRef.child("/latestWritten");
-        console.log('newRecord.setWithPriority success, writing into', childRef);
-        childRef.set(newRecord.timestamp);
-      }
-    });
+    if (delta > writeInterval) {
+      console.log('writing the full record, delta: ', delta),
+      newRecord = fbFullRef.push();
+      newRecord.setWithPriority({timestamp: Firebase.ServerValue.TIMESTAMP, state: fullState},
+        Firebase.ServerValue.TIMESTAMP,
+        function(error) {
+          if (!!error) {
+            console.log('newRecord.setWithPriority failed: ', error);
+          } else {
+            newRecord.once('value', function(dataSnapshot) {
+            /*console.log('newRecord.setWithPriority success, writing into', childRef,
+                        ', content: ', dataSnapshot.val());*/
+              childRef.set(dataSnapshot.val().timestamp); // newRecord.timestamp);
+          });
+        }
+       });
+     }
+   });
 }
 
 
@@ -45,7 +51,7 @@ pushFirebaseRecord = function(buffer) {
   // var re = /var mapDataLocations = [{.+}]/;
   var re = /var\s+mapDataLocations\s*=\s*(\[.+\])\s*\;/;
   var capture, fullState, shortState = [], station, nameHash;
-  var newItem;
+  var newItem, currentTimestamp;
   // buffer = 'var mapDataLocations = [{cghxzgchxgchxz}];';
   
   capture = re.exec(buffer)[1];
@@ -64,9 +70,18 @@ pushFirebaseRecord = function(buffer) {
 
   // myFirebaseRef.push({timestamp: Firebase.ServerValue.TIMESTAMP, state: shortState});
   newItem = myFirebaseRef.push();
-  newItem.setWithPriority({timestamp: Firebase.ServerValue.TIMESTAMP, state: shortState}, Firebase.ServerValue.TIMESTAMP);
-
-  // conditionalPushRecord(fullState);
+  newItem.setWithPriority({timestamp: Firebase.ServerValue.TIMESTAMP, state: shortState}, Firebase.ServerValue.TIMESTAMP,
+    function(error) {
+      if (!!error) {
+        console.log('newItem.setWithPriority failed: ', error);
+      } else {
+        newItem.once('value', function(dataSnapshot) {
+	  currentTimestamp = dataSnapshot.val().timestamp;
+	  // console.log('got current timestamp: ', currentTimestamp);
+          conditionalPushRecord(fullState, currentTimestamp);
+	});
+      }
+    });
 }
 
 exports.parseBikes = parseBikes = function() {
