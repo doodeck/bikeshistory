@@ -51,7 +51,7 @@ pushFirebaseRecord = function(buffer) {
   // var re = /var mapDataLocations = [{.+}]/;
   var re = /var\s+mapDataLocations\s*=\s*(\[.+\])\s*\;/;
   var capture, fullState, shortState = [], station, nameHash;
-  var newItem, currentTimestamp;
+  var newItem, currentTimestamp, adminUpdateRef;
   // buffer = 'var mapDataLocations = [{cghxzgchxgchxz}];';
   
   capture = re.exec(buffer)[1];
@@ -79,6 +79,10 @@ pushFirebaseRecord = function(buffer) {
 	  currentTimestamp = dataSnapshot.val().timestamp;
 	  // console.log('got current timestamp: ', currentTimestamp);
           conditionalPushRecord(fullState, currentTimestamp);
+
+	  // push the latest update time, just for debug
+          adminUpdateRef = myFirebaseRef.child('admin/latestWritten');
+	  adminUpdateRef.set(currentTimestamp);
 	});
       }
     });
