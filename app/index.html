@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>The Bikes History</title>
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script>
+    $(document).ready(function(){
+      // do jQuery
+      console.log('Bootstrapped');
+      // CORS
+      $.get( "https://www.bikes-srm.pl/Mobile/LocationsMap.aspx", function( data ) {
+        $( ".result" ).html( data );
+        console.log( "Load was performed." );
+      });
+    })
+  </script>
+</head>
+<body>
+</body>
+</html>

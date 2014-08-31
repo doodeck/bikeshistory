@@ -1,0 +1,22 @@
+{
+  "name": "bikeshistory",
+  "version": "0.0.1",
+  "description": "History of the bikes usage",
+  "main": "app/index.html",
+  "license": "MIT",
+  "homepage": "https://bikeshistory.firebaseapp.com/",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "authors": [
+    "<doodeck@users.noreply.github.com>"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.1"
+  }
+}
