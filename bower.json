@@ -17,6 +17,14 @@
     "<doodeck@users.noreply.github.com>"
   ],
   "dependencies": {
-    "jquery": "~2.1.1"
+    "angular": "1.2.x",
+    "angular-route": "1.2.x",
+    "angular-loader": "1.2.x",
+    "angular-mocks": "~1.2.x",
+    "html5-boilerplate": "~4.3.0",
+    "firebase": "~1.0.x",
+    "firebase-simple-login": "~1.6.x",
+    "angularfire": "~0.8.x",
+    "mockfirebase": "~0.2.9"
   }
 }
