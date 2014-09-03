@@ -7,7 +7,7 @@ angular.module('myApp.controllers', [])
     function($scope, $firebase) {
       var bindingTo = true;
 
-      var ref = new Firebase("https://my-angular-fire.firebaseio.com/");
+      var ref = new Firebase(GlobalConfig.FirebaseRef);
 
       // create an AngularFire reference to the data
       var sync = $firebase(ref);
@@ -27,7 +27,7 @@ angular.module('myApp.controllers', [])
     }])
   .controller('MyCtrl2', ['$scope', '$firebase',
     function($scope, $firebase) {
-      var ref = new Firebase("https://my-angular-fire.firebaseio.com/messages");
+      var ref = new Firebase(GlobalConfig.FirebaseRef);
       var sync = $firebase(ref);
 
       // create a synchronized array for use in our HTML code
