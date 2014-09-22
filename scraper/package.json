@@ -1,19 +1,20 @@
 {
   "name": "application-name",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "express": "~4.0.0",
-    "static-favicon": "~1.0.0",
-    "morgan": "~1.0.0",
-    "cookie-parser": "~1.0.1",
     "body-parser": "~1.0.0",
+    "cookie-parser": "~1.0.1",
     "debug": "~0.7.4",
-    "jade": "~1.3.0",
+    "express": "~4.0.0",
     "firebase": "~1.0.21",
+    "jade": "~1.3.0",
+    "memwatch": "^0.2.2",
+    "morgan": "~1.0.0",
+    "static-favicon": "~1.0.0",
     "string-hash": "~1.1.0"
   }
 }

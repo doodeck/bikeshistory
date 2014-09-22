@@ -10,6 +10,8 @@ var users = require('./routes/users');
 
 var parseBikesModule = require('./modules/parsebikes.js');
 
+var memwatch = require('memwatch');
+
 var app = express();
 
 // view engine setup
@@ -58,5 +60,13 @@ app.use(function(err, req, res, next) {
 });
 
 setInterval(parseBikesModule.parseBikes, 60000);
+
+memwatch.on('leak', function(info) {
+  console.log('on leak: ', info);
+  });
+
+memwatch.on('stats', function(stats) {
+  console.log('on stats: ', info);
+  });
 
 module.exports = app;

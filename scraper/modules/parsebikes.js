@@ -3,7 +3,7 @@ var Firebase = require("firebase");
 var hash = require("string-hash");
 var myFirebaseRef = new Firebase("https://bikeshistory.firebaseio.com/states");
 var fbFullRef = new Firebase("https://bikeshistory.firebaseio.com/fullstates");
-var responseBuffer = "";
+// var responseBuffer = "";
 var pushFirebaseRecord, parseBikes, d2h, conditionalPushRecord;
 
 d2h = function(d) {
@@ -89,10 +89,12 @@ pushFirebaseRecord = function(buffer) {
 }
 
 exports.parseBikes = parseBikes = function() {
+  var responseBuffer = "";
 
   https.get("https://www.bikes-srm.pl/Mobile/LocationsMap.aspx", function(ress) {
     // console.log("Got response: " + ress.statusCode);
     // console.log(ress);
+    responseBuffer = null;
     responseBuffer = "";
 
     ress.on('data', function(d) {
