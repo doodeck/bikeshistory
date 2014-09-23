@@ -1,10 +1,13 @@
 var https = require('https');
+var request = require('request');
+
 var Firebase = require("firebase");
 var hash = require("string-hash");
 var myFirebaseRef = new Firebase("https://bikeshistory.firebaseio.com/states");
 var fbFullRef = new Firebase("https://bikeshistory.firebaseio.com/fullstates");
-// var responseBuffer = "";
-var pushFirebaseRecord, parseBikes, d2h, conditionalPushRecord;
+var responseBuffer = null;
+var scrapeURL = "https://www.bikes-srm.pl/Mobile/LocationsMap.aspx";
+var pushFirebaseRecord, parseBikesHttps, parseBikesRequest, d2h, conditionalPushRecord;
 
 d2h = function(d) {
   return (+d).toString(16).toUpperCase();
@@ -88,13 +91,10 @@ pushFirebaseRecord = function(buffer) {
     });
 }
 
-exports.parseBikes = parseBikes = function() {
-  var responseBuffer = "";
-
-  https.get("https://www.bikes-srm.pl/Mobile/LocationsMap.aspx", function(ress) {
+parseBikesHttps = function() {
+  https.get(scrapeURL, function(ress) {
     // console.log("Got response: " + ress.statusCode);
     // console.log(ress);
-    responseBuffer = null;
     responseBuffer = "";
 
     ress.on('data', function(d) {
@@ -121,4 +121,18 @@ exports.parseBikes = parseBikes = function() {
   }).on('error', function(e) {
     console.log("Got error: " + e.message);
   });
+}
+
+parseBikesRequest = function() {
+  request(scrapeURL, function(error, response, body) {
+    if (!error && response.statusCode == 200) {
+      // console.log(body);
+      pushFirebaseRecord(body);
+    }
+  });
+}
+
+exports.parseBikes = function() {
+  return parseBikesRequest();
+  // return parseBikesHttps();
 }
