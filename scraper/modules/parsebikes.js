@@ -1,13 +1,15 @@
 var https = require('https');
 var request = require('request');
-
 var Firebase = require("firebase");
 var hash = require("string-hash");
-var myFirebaseRef = new Firebase("https://bikeshistory.firebaseio.com/states");
-var fbFullRef = new Firebase("https://bikeshistory.firebaseio.com/fullstates");
+var fs = require('fs');
+
+var myFirebaseRef = new Firebase("https://bikeshistory.firebaseio.com/tmp/states");
+var fbFullRef = new Firebase("https://bikeshistory.firebaseio.com/tmp/fullstates");
 var responseBuffer = null;
 var scrapeURL = "https://www.bikes-srm.pl/Mobile/LocationsMap.aspx";
-var pushFirebaseRecord, parseBikesHttps, parseBikesRequest, d2h, conditionalPushRecord;
+var pushFirebaseRecord, pushFirebaseFullState, parseBikesHttps, parseBikesRequest, parseBikesTest, d2h, conditionalPushRecord;
+var testArray = null, testArrayIndex = 0;
 
 d2h = function(d) {
   return (+d).toString(16).toUpperCase();
@@ -53,16 +55,29 @@ conditionalPushRecord = function(fullState, currentTimestamp) {
 pushFirebaseRecord = function(buffer) {
   // var re = /var mapDataLocations = [{.+}]/;
   var re = /var\s+mapDataLocations\s*=\s*(\[.+\])\s*\;/;
-  var capture, fullState, shortState = [], station, nameHash;
-  var newItem, currentTimestamp, adminUpdateRef;
+  var capture, fullState;
   // buffer = 'var mapDataLocations = [{cghxzgchxgchxz}];';
   
   capture = re.exec(buffer)[1];
   // console.log(capture);
 
+  /*
+  fs.writeFile('.sample.xml', capture, function(err) {
+    if (err) throw err;
+    console.log('It\'s saved!');
+  });
+  */
+
   fullState = JSON.parse(capture);
 
   // console.log('fool: ', fullState);
+  pushFirebaseFullState(fullState);
+}
+
+pushFirebaseFullState = function(fullState) {
+  var shortState = [], station, nameHash;
+  var newItem, currentTimestamp, adminUpdateRef;
+
   for (station in fullState) {
     // console.log('station: ', station, ', ', fullState[station]);
     nameHash = hash(fullState[station].LocalTitle);
@@ -132,7 +147,20 @@ parseBikesRequest = function() {
   });
 }
 
+parseBikesTest = function() {
+  if (!testArray) {
+    testArray = JSON.parse(fs.readFileSync('.samples.xml'));
+    console.log('Digested testArray, which turned out to contain ',
+                testArray.length, ' items');
+  }
+  // console.log('pushFirebaseFullState[', testArrayIndex, ']');
+  pushFirebaseFullState(testArray[testArrayIndex]);
+  testArrayIndex++;
+  testArrayIndex %= testArray.length;
+}
+
 exports.parseBikes = function() {
+  // return parseBikesTest();
   return parseBikesRequest();
   // return parseBikesHttps();
 }
