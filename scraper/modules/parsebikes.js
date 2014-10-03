@@ -3,9 +3,12 @@ var request = require('request');
 var Firebase = require("firebase");
 var hash = require("string-hash");
 var fs = require('fs');
+var config = require('../config');
 
-var myFirebaseRef = new Firebase("https://bikeshistory.firebaseio.com/tmp/states");
-var fbFullRef = new Firebase("https://bikeshistory.firebaseio.com/tmp/fullstates");
+var rootPath = "https://bikeshistory.firebaseio.com" +
+               (config.tmpDatabase ? "/tmp/" : "/");
+var myFirebaseRef = new Firebase(rootPath + "states");
+var fbFullRef = new Firebase(rootPath + "fullstates");
 var responseBuffer = null;
 var scrapeURL = "https://www.bikes-srm.pl/Mobile/LocationsMap.aspx";
 var pushFirebaseRecord, pushFirebaseFullState, parseBikesHttps, parseBikesRequest, parseBikesTest, d2h, conditionalPushRecord;
