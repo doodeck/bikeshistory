@@ -1,0 +1,31 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  div.loginbox
+    form(name="exporting", action="/exporting", method="post")
+      label(for="host")
+        |Host
+      input(type="text", name="host")
+      label(for="port")
+        |Port
+      input(type="text", name="port")
+      label(for="username")
+        |Username
+      input(type="text", name="username")
+      label(for="password")
+        |Password
+      input(type="password", name="password")
+      label(for="database")
+        |Database
+      input(type="text", name="database")
+      label(for="collection")
+        |Collection States
+      input(type="text", name="collS")
+      label(for="collection")
+        |Collection Full States
+      input(type="text", name="collFullS")
+      input(type="submit", value="Export")
+
+ 1928  mongoimport --host ds043170.mongolab.com --port 43170 --username biker --password bikerpass -d bikeshistory --collection bikeshistory --jsonArray --file bikeshistory-export-40827.json 
