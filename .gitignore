@@ -6,3 +6,4 @@ tmp
 !.gitkeep
 logs/*
 *.sublime-*
+credentials.*

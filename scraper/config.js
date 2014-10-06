@@ -3,7 +3,7 @@
 
 var CONFIG = {
   // PORT: 5000, // traditionally written is capital letters
-  scrapeInterval: 86400000, // 60000,
+  scrapeInterval: 60000, // 86400000, // 60000,
   tmpDatabase: true
 };
 
