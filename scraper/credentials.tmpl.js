@@ -2,7 +2,7 @@
 
 var CREDENTIALS = {
         // change it to access creadential to your DB
-	dbUrl = 'mongodb://user:password@******.mongolab.com:43170/bikeshistory';
+	dbUrl = 'mongodb://user:password@******.mongolab.com:port/bikeshistory';
 	collection : {
 		state: 'states',
 		fullState: 'fullStates'
