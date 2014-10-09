@@ -30,68 +30,54 @@ exports.startexport = function(values) {
 	console.log('dbUrl: ', dbUrl);
 
 	MongoClient.connect(dbUrl, function(err, db) {
-    if(err) throw err;
+    if (!err) { // throw err;
 
-	var collectionStates = db.collection('bikeshistory');
-	var trainToMongo = [];
+		var collectionStates = db.collection('bikeshistory');
+		var trainToMongo = [];
 
-	myFirebaseRef.once('value', function (snapshot) {
-		var snapshotVal = snapshot.val();
-	  // console.log(snapshot.val());
-	  for (prop in snapshotVal) {
-	  	if (prop !== 'admin') {
-		  console.log('prop: ', prop); // , 'val: ', snapshotVal[prop]);
-		  trainToMongo.push(prop);
-	  	}
-	  }
+		myFirebaseRef.once('value', function (snapshot) {
+			var snapshotVal = snapshot.val();
+		  // console.log(snapshot.val());
+		  for (prop in snapshotVal) {
+		  	if (prop !== 'admin') {
+			  console.log('prop: ', prop); // , 'val: ', snapshotVal[prop]);
+			  trainToMongo.push(prop);
+		  	}
+		  }
 
-	// the export itself
-	function exportItem(props) {
-	  var prop = props.pop();
+		// the export itself
+		function exportItem(props) {
+		  var prop = props.pop();
 
-	  if (!!prop) {
-	    collectionStates.insert(snapshotVal[prop], function(err, docs) {
-	     if (!!err) {
-	      console.log('Insert failed: ', err, ', item ',
-	                  prop, ' reinsertd');
-	      props.push(prop); // should the 1st insert fail the process will be aborted, since no chain exportItem() will be called
-	     } else {
-	      console.log('Insert ok: ', docs[0]["_id"], 'items left: ', props.length);
-	      // works very nicely but manages just a few items per second setTimeout(exportItem, 0, props);
-	      exportItem(props);
-	      exportItem(props);
-            }
-	    });
-	  } else {
-	    console.log('Export happily finished');
-	  }
-        }
+		  if (!!prop) {
+		    collectionStates.insert(snapshotVal[prop], function(err, docs) {
+		     if (!!err) {
+		      console.log('Insert failed: ', err, ', item ',
+		                  prop, ' reinsertd');
+		      props.push(prop); // should the 1st insert fail the process will be aborted, since no chain exportItem() will be called
+		     } else {
+		      console.log('Insert ok: ', docs[0]["_id"], 'items left: ', props.length);
+		      // works very nicely but manages just a few items per second setTimeout(exportItem, 0, props);
+		      exportItem(props);
+		      exportItem(props);
+	            }
+		    });
+		  } else {
+		    console.log('Export happily finished');
+		  }
+	        }
 
-        exportItem(trainToMongo);
+	        exportItem(trainToMongo);
 
-	}, function (errorObject) {
-	  console.log('The read failed: ' + errorObject.code);
-	});
-	
-    // premature here, everything happens asynchroneously ! db.close();
+		}, function (errorObject) {
+		  console.log('The read failed: ' + errorObject.code);
+		});
+		
+	    // premature here, everything happens asynchroneously ! db.close();
+    } else {
+    	console.log('Error, export aborted: ', err);
+    }
 
-
-    /*
-    var collection = db.collection('test_insert');
-    collection.insert({a:2}, function(err, docs) {
-
-      collection.count(function(err, count) {
-        console.log("count = ", count);
-      });
-
-      // Locate all the entries using find
-      collection.find().toArray(function(err, results) {
-        console.dir(results);
-        // Let's close the db
-        db.close();
-      });
-    });
-    */
   });
 
 }
