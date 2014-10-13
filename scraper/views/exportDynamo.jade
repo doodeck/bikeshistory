@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  div.loginbox
+    form(name="dynamo", action="/dynamo", method="post")
+      label(for="collection")
+        |Collection States
+      input(type="text", name="collS")
+      label(for="collection")
+        |Collection Full States
+      input(type="text", name="collFullS")
+      input(type="submit", value="Export")
