@@ -10,7 +10,7 @@ var dbfire = require('./dbfire');
 var myFirebaseRef = dbfire.myFirebaseRef();
 var fbFullRef = dbfire.fbFullRef();
 
-var pushFirebaseRecord, pushFirebaseFullState, parseBikesTest, d2h, conditionalPushRecord;
+var pushFirebaseRecord, pushFirebaseFullState, d2h, conditionalPushRecord;
 var testArray = null, testArrayIndex = 0;
 
 d2h = function(d) {

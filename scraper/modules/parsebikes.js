@@ -3,6 +3,7 @@ var request = require('request');
 var hash = require("string-hash");
 var fs = require('fs');
 var bikesDbFb = require('./parsebikesFb');
+var config = require('../config');
 
 var responseBuffer = null;
 var scrapeURL = "https://www.bikes-srm.pl/Mobile/LocationsMap.aspx";
@@ -23,14 +24,18 @@ parseBikesHttps = function() {
     // This never happens
     ress.on('end', function(){
         // console.log("End received!");
-        bikesDbFb.pushFirebaseRecord(responseBuffer);
+        if (config.dbDriver.firebase) {
+          bikesDbFb.pushFirebaseRecord(responseBuffer);
+        }
         responseBuffer = "";
     });
 
     // But this does
     ress.on('close', function(){
         console.log("Close received!");
-        bikesDbFb.pushFirebaseRecord(responseBuffer);
+        if (config.dbDriver.firebase) {
+          bikesDbFb.pushFirebaseRecord(responseBuffer);
+        }
         responseBuffer = "";
     });
 
@@ -45,7 +50,9 @@ parseBikesRequest = function() {
   request(scrapeURL, function(error, response, body) {
     if (!error && response.statusCode == 200) {
       // console.log(body);
-      bikesDbFb.pushFirebaseRecord(body);
+      if (config.dbDriver.firebase) {
+        bikesDbFb.pushFirebaseRecord(body);
+      }
     }
   });
 }
@@ -57,7 +64,9 @@ parseBikesTest = function() {
                 testArray.length, ' items');
   }
   // console.log('pushFirebaseFullState[', testArrayIndex, ']');
-  bikesDbFb.pushFirebaseFullState(testArray[testArrayIndex]);
+  if (config.dbDriver.firebase) {
+    bikesDbFb.pushFirebaseFullState(testArray[testArrayIndex]);
+  }
   testArrayIndex++;
   testArrayIndex %= testArray.length;
 }
