@@ -65,7 +65,6 @@ exports.startexport = function(values) {
 			// works very nicely but manages just a few items per second setTimeout(exportItem, 0, props);
 			exportItem(props);
 			exportItem(props);
-			exportItem(props);
             }
 	    });
 		  } else {

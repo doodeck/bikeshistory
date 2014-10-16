@@ -1,5 +1,7 @@
-var https = require('https');
-var request = require('request');
+// parsebikesFb.js
+//
+
+
 var Firebase = require("firebase");
 var hash = require("string-hash");
 var fs = require('fs');
@@ -8,9 +10,7 @@ var dbfire = require('./dbfire');
 var myFirebaseRef = dbfire.myFirebaseRef();
 var fbFullRef = dbfire.fbFullRef();
 
-var responseBuffer = null;
-var scrapeURL = "https://www.bikes-srm.pl/Mobile/LocationsMap.aspx";
-var pushFirebaseRecord, pushFirebaseFullState, parseBikesHttps, parseBikesRequest, parseBikesTest, d2h, conditionalPushRecord;
+var pushFirebaseRecord, pushFirebaseFullState, parseBikesTest, d2h, conditionalPushRecord;
 var testArray = null, testArrayIndex = 0;
 
 d2h = function(d) {
@@ -54,7 +54,7 @@ conditionalPushRecord = function(fullState, currentTimestamp) {
 }
 
 
-pushFirebaseRecord = function(buffer) {
+exports.pushFirebaseRecord = pushFirebaseRecord = function(buffer) {
   // var re = /var mapDataLocations = [{.+}]/;
   var re = /var\s+mapDataLocations\s*=\s*(\[.+\])\s*\;/;
   var capture, fullState;
@@ -76,7 +76,7 @@ pushFirebaseRecord = function(buffer) {
   pushFirebaseFullState(fullState);
 }
 
-pushFirebaseFullState = function(fullState) {
+exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
   var shortState = [], station, nameHash;
   var newItem, currentTimestamp, adminUpdateRef;
 
@@ -106,63 +106,4 @@ pushFirebaseFullState = function(fullState) {
 	});
       }
     });
-}
-
-parseBikesHttps = function() {
-  https.get(scrapeURL, function(ress) {
-    // console.log("Got response: " + ress.statusCode);
-    // console.log(ress);
-    responseBuffer = "";
-
-    ress.on('data', function(d) {
-      // process.stdout.write(d);
-      responseBuffer = responseBuffer.concat(d);
-    });
-
-    // This never happens
-    ress.on('end', function(){
-        // console.log("End received!");
-        pushFirebaseRecord(responseBuffer);
-        responseBuffer = "";
-    });
-
-    // But this does
-    ress.on('close', function(){
-        console.log("Close received!");
-        pushFirebaseRecord(responseBuffer);
-        responseBuffer = "";
-    });
-
-    // process.stdout.write('->' + responseBuffer);
-
-  }).on('error', function(e) {
-    console.log("Got error: " + e.message);
-  });
-}
-
-parseBikesRequest = function() {
-  request(scrapeURL, function(error, response, body) {
-    if (!error && response.statusCode == 200) {
-      // console.log(body);
-      pushFirebaseRecord(body);
-    }
-  });
-}
-
-parseBikesTest = function() {
-  if (!testArray) {
-    testArray = JSON.parse(fs.readFileSync('.samples.xml'));
-    console.log('Digested testArray, which turned out to contain ',
-                testArray.length, ' items');
-  }
-  // console.log('pushFirebaseFullState[', testArrayIndex, ']');
-  pushFirebaseFullState(testArray[testArrayIndex]);
-  testArrayIndex++;
-  testArrayIndex %= testArray.length;
-}
-
-exports.parseBikes = function() {
-  // return parseBikesTest();
-  return parseBikesRequest();
-  // return parseBikesHttps();
 }
