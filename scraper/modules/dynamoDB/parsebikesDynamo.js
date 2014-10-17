@@ -4,8 +4,8 @@
 
 var hash = require("string-hash");
 var fs = require('fs');
-var config = require('../config');
-var docClient = require('./dynamoDB/dbDynamo');
+var config = require('../../config');
+var docClient = require('./dbDynamo');
 
 var pushFirebaseRecord, pushFirebaseFullState, d2h, conditionalPushRecord;
 var testArray = null, testArrayIndex = 0;
@@ -103,8 +103,7 @@ exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
     if (!!err) {
       console.log('Insert failed: ', err, ', item ', shortState);
     } else {
-      console.log('Insert ok: ', formData.Item.timestamp /*docs[0]["_id"],*/);
-      // works very nicely but manages just a few items per second setTimeout(exportItem, 0, props);
+      // console.log('Insert ok: ', formData.Item.timestamp /*docs[0]["_id"],*/);
     }
   });
 

@@ -3,7 +3,7 @@ var request = require('request');
 var hash = require("string-hash");
 var fs = require('fs');
 var bikesDbFb = require('./parsebikesFb');
-var bikesDbDynamo = require(/*'./dynamoDB/*/ './parsebikesDynamo');
+var bikesDbDynamo = require('./dynamoDB/parsebikesDynamo');
 var config = require('../config');
 
 var responseBuffer = null;
