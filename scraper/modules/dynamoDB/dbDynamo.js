@@ -9,5 +9,13 @@ AWS.config.loadFromPath('./' + config.AWS.configFile);
 AWS.config.update({region: config.AWS.region });
 var tables = require('./createTables')
 
+
 // var dynamodb = new AWS.DynamoDB({region: config.AWS.region});
-exports.docClient = new DOC.DynamoDB(/*dynamodb*/);
+var docClient = new DOC.DynamoDB(/*dynamodb*/);
+
+// exports.config = CONFIG;
+global.NODE_docClient = global.NODE_docClient ? global.NODE_docClient : docClient;
+
+module.exports = global.NODE_docClient;
+
+// exports.docClient = global.NODE_docClient;

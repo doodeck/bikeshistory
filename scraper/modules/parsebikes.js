@@ -3,6 +3,7 @@ var request = require('request');
 var hash = require("string-hash");
 var fs = require('fs');
 var bikesDbFb = require('./parsebikesFb');
+var bikesDbDynamo = require(/*'./dynamoDB/*/ './parsebikesDynamo');
 var config = require('../config');
 
 var responseBuffer = null;
@@ -27,6 +28,9 @@ parseBikesHttps = function() {
         if (config.dbDriver.firebase) {
           bikesDbFb.pushFirebaseRecord(responseBuffer);
         }
+        if (config.dbDriver.dynamoDB) {
+          bikesDbDynamo.pushFirebaseRecord(responseBuffer);
+        }
         responseBuffer = "";
     });
 
@@ -35,6 +39,9 @@ parseBikesHttps = function() {
         console.log("Close received!");
         if (config.dbDriver.firebase) {
           bikesDbFb.pushFirebaseRecord(responseBuffer);
+        }
+        if (config.dbDriver.dynamoDB) {
+          bikesDbDynamo.pushFirebaseRecord(responseBuffer);
         }
         responseBuffer = "";
     });
@@ -53,6 +60,9 @@ parseBikesRequest = function() {
       if (config.dbDriver.firebase) {
         bikesDbFb.pushFirebaseRecord(body);
       }
+      if (config.dbDriver.dynamoDB) {
+        bikesDbDynamo.pushFirebaseRecord(body);
+      }
     }
   });
 }
@@ -66,6 +76,9 @@ parseBikesTest = function() {
   // console.log('pushFirebaseFullState[', testArrayIndex, ']');
   if (config.dbDriver.firebase) {
     bikesDbFb.pushFirebaseFullState(testArray[testArrayIndex]);
+  }
+  if (config.dbDriver.dynamoDB) {
+    bikesDbDynamo.pushFirebaseFullState(testArray[testArrayIndex]);
   }
   testArrayIndex++;
   testArrayIndex %= testArray.length;

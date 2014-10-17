@@ -1,16 +1,13 @@
-// parsebikesFb.js
+// parsebikesDynamo.js
 //
 
 
-var Firebase = require("firebase");
 var hash = require("string-hash");
 var fs = require('fs');
-var dbfire = require('./dbfire');
+var config = require('../config');
+var docClient = require('./dynamoDB/dbDynamo');
 
-var myFirebaseRef = dbfire.myFirebaseRef();
-var fbFullRef = dbfire.fbFullRef();
-
-var pushFirebaseRecord, pushFirebaseFullState, parseBikesTest, d2h, conditionalPushRecord;
+var pushFirebaseRecord, pushFirebaseFullState, d2h, conditionalPushRecord;
 var testArray = null, testArrayIndex = 0;
 
 d2h = function(d) {
@@ -88,22 +85,31 @@ exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
 		      H: /*d2h(*/nameHash/*)*/ });
   }
 
-  // myFirebaseRef.push({timestamp: Firebase.ServerValue.TIMESTAMP, state: shortState});
-  newItem = myFirebaseRef.push();
-  newItem.setWithPriority({timestamp: Firebase.ServerValue.TIMESTAMP, state: shortState}, Firebase.ServerValue.TIMESTAMP,
-    function(error) {
-      if (!!error) {
-        console.log('newItem.setWithPriority failed: ', error);
-      } else {
-        newItem.once('value', function(dataSnapshot) {
-	  currentTimestamp = dataSnapshot.val().timestamp;
-	  // console.log('got current timestamp: ', currentTimestamp);
-          conditionalPushRecord(fullState, currentTimestamp);
+    // console.log('about to put: ', snapshotVal[prop]);
+  var formData = {
+    TableName: config.AWS.dynamoDBtable,
+    Item: {
+      timestamp: new Date().getTime(), // as of today (Oct'14) there is no server time available
+      state: shortState
+      /* good for dynamoDB:
+      timestamp: { 'N': snapshotVal[prop].timestamp.toString() },
+      state: { 'M': { "1st": { 'S': "I'm 1st"}, "2nd": {'S': "I'm second"}, "3rd":
+                { 'L': [ {'S': "This"}, { 'S': "is"}, {'S': "Array"} ] } } }
+      */
+    }
+  };
+  // dynamodb.putItem(formData, function(err, data) {
+  docClient.putItem(formData, function(err, data) {
+    if (!!err) {
+      console.log('Insert failed: ', err, ', item ', shortState);
+    } else {
+      console.log('Insert ok: ', formData.Item.timestamp /*docs[0]["_id"],*/);
+      // works very nicely but manages just a few items per second setTimeout(exportItem, 0, props);
+    }
+  });
 
-	  // push the latest update time, just for debug
-          adminUpdateRef = myFirebaseRef.child('admin/latestWritten');
-	  adminUpdateRef.set(currentTimestamp);
-	});
-      }
-    });
+  /* now take care of
+          conditionalPushRecord(fullState, currentTimestamp);
+          to a different table I guess
+  */
 }
