@@ -38,6 +38,7 @@ exports.startexport = function(values) {
 		var formData = {
 			TableName: config.AWS.dynamoDBtable,
 			Item: {
+			  period: "HashValue",
 			  timestamp: snapshotVal[prop].timestamp,
 			  state: snapshotVal[prop].state
 			  /* good for dynamoDB:

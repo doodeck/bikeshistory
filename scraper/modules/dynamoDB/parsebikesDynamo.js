@@ -89,6 +89,7 @@ exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
   var formData = {
     TableName: config.AWS.dynamoDBtable,
     Item: {
+      period: "HashValue",
       timestamp: new Date().getTime(), // as of today (Oct'14) there is no server time available
       state: shortState
       /* good for dynamoDB:
