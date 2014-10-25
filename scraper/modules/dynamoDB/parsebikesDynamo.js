@@ -101,7 +101,8 @@ exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
   };
   // dynamodb.putItem(formData, function(err, data) {
   // dbClient.docClient.putItem(formData, function(err, data) {
-  dbClient.putStateItem(payload, function(err, data) {
+  // dbClient.putStateItem(payload, function(err, data) {
+  dbClient.conditionalPutStateItem(payload, function(err, data) {  
     if (!!err) {
       console.log('Insert failed: ', err, ', item ', shortState);
     } else {

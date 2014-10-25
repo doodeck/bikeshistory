@@ -55,7 +55,7 @@ deepCompareItems = function (latest, incoming, callback) { // remember to ignore
     // console.error('comparerr: ', err);
     equal = false;
   } finally {
-    console.log('compareally: ', equal);
+    // console.log('compareally: ', equal);
     // incoming.Item.timestamp = timestamp;
     callback(null /*err*/, {equal: equal});
   }
@@ -84,8 +84,10 @@ isEqualLatestPutItem = function(formData, callback) {
                 console.log('docClient query ok, but item not found');
                 callback(null /*err*/, {equal: false});
             } else {
+                /*
                 console.log('docClient happily retrieved: ' + data.Items[0].timestamp.toString());
                 console.log(data); // print the item data
+                */
                 latest = /*latestPutItem[formData.Item.period] =*/ {};
                 latest.TableName = formData.TableName;
                 latest.Item = data.Items[0];
@@ -104,20 +106,16 @@ isEqualLatestPutItem = function(formData, callback) {
   // console.log('latestPutItem: ', JSON.stringify(latestPutItem));
 }
 
-/*
 exports.conditionalPutStateItem = function (payload, callback) { // put the item only if it's different from the latest put
-  conditionalPutHashedItem("State", payload, callback);
+  putHashedItem(appendStateItemPeriod, true, payload, callback);
 }
-
-conditionalPutHashedItem = function(hash, payload, callback) {
-}
-*/
 
 exports.putStateItem = function(payload, callback) {
-  putHashedItem(appendStateItemPeriod, payload, callback);
+  putHashedItem(appendStateItemPeriod, false, payload, callback);
 }
 
-putHashedItem = function(appendCallback, payload, callback) {
+putHashedItem = function(appendCallback, conditional, payload, callback) {
+  var doPutItem;
   var formData = {
     TableName: config.AWS.dynamoDBtable,
     Item: {
@@ -132,20 +130,33 @@ putHashedItem = function(appendCallback, payload, callback) {
 
   appendCallback(formData, function(err, data) {
     if (!err) {
-      global.NODE_docClient.putItem(formData, function(err, data) {
-        if (!!err) {
-          console.log('putStateItem: putItem failed: ', err);
-        } else {
-// isEqualLatestPutItem(formData);
-          updateLatestPutItem(formData); // doing nothing, waiting for memcache
-        }
-        if (!!callback)
-          callback(err, data);
-        else
-          return({err: err || {}, data: data || {}});
-      });
+      doPutItem = function() {
+        docClient.putItem(formData, function(err, data) {
+          if (!!err) {
+            console.log('putStateItem: putItem failed: ', err);
+          } else {
+  // isEqualLatestPutItem(formData);
+            updateLatestPutItem(formData); // doing nothing, waiting for memcache
+          }
+          if (!!callback)
+            callback(err, data);
+        });
+      };
+
+      if (!conditional) {
+        doPutItem();
+      } else {
+        isEqualLatestPutItem(formData, function(err, data) {
+          debugger;
+          if (!!err || !data || !data.equal)
+            doPutItem();
+          else
+            callback(err, data);
+        });
+      }
     } else {
       console.error('putHashedItem: appendCallback(', appendCallback, ') failed');
+      callback(err, data);
     }
   });
 }
