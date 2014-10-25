@@ -5,7 +5,7 @@
 var hash = require("string-hash");
 var fs = require('fs');
 var config = require('../../config');
-var docClient = require('./dbDynamo');
+var dbClient = require('./dbDynamo'); // .docClient;
 
 var pushFirebaseRecord, pushFirebaseFullState, d2h, conditionalPushRecord;
 var testArray = null, testArrayIndex = 0;
@@ -86,21 +86,22 @@ exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
   }
 
     // console.log('about to put: ', snapshotVal[prop]);
+  /*
   var formData = {
     TableName: config.AWS.dynamoDBtable,
     Item: {
       period: "HashValue",
       timestamp: new Date().getTime(), // as of today (Oct'14) there is no server time available
       state: shortState
-      /* good for dynamoDB:
-      timestamp: { 'N': snapshotVal[prop].timestamp.toString() },
-      state: { 'M': { "1st": { 'S': "I'm 1st"}, "2nd": {'S': "I'm second"}, "3rd":
-                { 'L': [ {'S': "This"}, { 'S': "is"}, {'S': "Array"} ] } } }
-      */
     }
   };
+  */
+  var payload = {
+    state: shortState
+  };
   // dynamodb.putItem(formData, function(err, data) {
-  docClient.putItem(formData, function(err, data) {
+  // dbClient.docClient.putItem(formData, function(err, data) {
+  dbClient.putStateItem(payload, function(err, data) {
     if (!!err) {
       console.log('Insert failed: ', err, ', item ', shortState);
     } else {

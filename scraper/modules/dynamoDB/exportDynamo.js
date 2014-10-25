@@ -7,7 +7,7 @@ var dbfire = require('../dbfire');
 var config = require('../../config');
 
 
-var docClient = require('./dbDynamo');
+var dbClient = require('./dbDynamo'); // .docClient;
 
 var myFirebaseRef = dbfire.myFirebaseRef();
 var fbFullRef = dbfire.fbFullRef();
@@ -35,21 +35,22 @@ exports.startexport = function(values) {
 
 	  if (!!prop) {
 	  	// console.log('about to put: ', snapshotVal[prop]);
+		/*
 		var formData = {
 			TableName: config.AWS.dynamoDBtable,
 			Item: {
 			  period: "HashValue",
 			  timestamp: snapshotVal[prop].timestamp,
 			  state: snapshotVal[prop].state
-			  /* good for dynamoDB:
-			  timestamp: { 'N': snapshotVal[prop].timestamp.toString() },
-			  state: { 'M': { "1st": { 'S': "I'm 1st"}, "2nd": {'S': "I'm second"}, "3rd":
-			            { 'L': [ {'S': "This"}, { 'S': "is"}, {'S': "Array"} ] } } }
-			  */
 			}
 		};
+		*/
+		var payload = {
+		  state: snapshotVal[prop].state
+		};
 		// dynamodb.putItem(formData, function(err, data) {
-		docClient.putItem(formData, function(err, data) {
+		// dbClient.docClient.putItem(formData, function(err, data) {
+		dbClient.putStateItem(payload, function(err, data) {
 
 	     if (!!err) {
 	      console.log('Insert failed: ', err, ', item ',
