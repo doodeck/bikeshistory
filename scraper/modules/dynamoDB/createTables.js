@@ -28,8 +28,8 @@ var params = {
     { AttributeName: 'timestamp', KeyType: 'RANGE' }
   ],
   ProvisionedThroughput: { /* required */
-    ReadCapacityUnits: 15, /* required */
-    WriteCapacityUnits: 15 /* required */
+    ReadCapacityUnits: 12, /* required */
+    WriteCapacityUnits: 12 /* required */
   },
   TableName: config.AWS.dynamoDBtable
 };

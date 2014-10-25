@@ -2,28 +2,126 @@
 //
 
 var config = require('../../config');
+var assert = require('assert');
 var AWS = require('aws-sdk');
 var DOC = require("../../lib/dynamodb-doc");
 AWS.config.loadFromPath('./' + config.AWS.configFile);
 // AWS.config.region = config.AWS.region;
 AWS.config.update({region: config.AWS.region });
 var tables = require('./createTables');
+var putHashedItem, conditionalPutHashedItem; // function to save either state or fullState item
+// memcache ... var latestPutItem = {};
+var appendStateItemPeriod;
+var formDataToQuery;
+var updateLatestPutItem, isEqualLatestPutItem, deepCompareItems;
 
+appendStateItemPeriod = function(formData, callback) {
+  formData.Item.period = "State"; // ultimately it should be hashed with a tmestamp derivative as well, e.g. "State-2014-11"
+  callback(null, { formData: formData });
+}
 
 // var dynamodb = new AWS.DynamoDB({region: config.AWS.region});
-var docClient = new DOC.DynamoDB(/*dynamodb*/);
+// var docClient = new DOC.DynamoDB(/*dynamodb*/);
 
 // exports.config = CONFIG;
-global.NODE_docClient = global.NODE_docClient ? global.NODE_docClient : docClient;
+var docClient = global.NODE_docClient = global.NODE_docClient ? global.NODE_docClient : new DOC.DynamoDB(/*dynamodb*/);
 
 // module.exports = global.NODE_docClient;
 exports.docClient = global.NODE_docClient;
 
+
+updateLatestPutItem = function(formData) {
+  // memcache ... latestPutItem[formData.Item.period] = formData;
+  // console.log('latestPutItem: ', JSON.stringify(latestPutItem));
+}
+
+formDataToQuery = function(formData) {
+  var query = {
+    TableName: formData.TableName,
+    Key: formData.Item,
+    ConsistentRead: true
+  };
+}
+
+deepCompareItems = function (latest, incoming, callback) { // remember to ignore the timestamp before calling this function!
+  var equal = true;
+  // var timestamp = incoming.Item.timestamp;
+
+  // console.log('Comparing: ', latest, ' against ', incoming);
+  try {
+    // incoming.Item.timestamp = latest.Item.timestamp;
+    assert.deepEqual(latest, incoming);
+  } catch(err) {
+    // console.error('comparerr: ', err);
+    equal = false;
+  } finally {
+    console.log('compareally: ', equal);
+    // incoming.Item.timestamp = timestamp;
+    callback(null /*err*/, {equal: equal});
+  }
+}
+
+isEqualLatestPutItem = function(formData, callback) {
+  var latest = null; // memcache ... latestPutItem[formData.Item.period];
+
+  if (!latest) {
+    docClient.query({
+        TableName: formData.TableName,
+        KeyConditions:
+            [docClient.Condition("period", "EQ", formData.Item.period)],
+            // period: formData.Item.period
+            // timestamp: formData.Item.timestamp
+        ConsistentRead: true,
+        ScanIndexForward: false,
+        Limit: 1
+    },
+    function (err, data) {
+        if (!!err || !data) {
+            console.error('docClient query failed: ', err);
+            callback(err, {equal: false});
+        } else {
+            if (!data.Count) {
+                console.log('docClient query ok, but item not found');
+                callback(null /*err*/, {equal: false});
+            } else {
+                console.log('docClient happily retrieved: ' + data.Items[0].timestamp.toString());
+                console.log(data); // print the item data
+                latest = /*latestPutItem[formData.Item.period] =*/ {};
+                latest.TableName = formData.TableName;
+                latest.Item = data.Items[0];
+
+                latest.Item.timestamp = formData.Item.timestamp; // ignore timestamp by comparison
+                deepCompareItems(latest, formData, callback);
+            }
+        }
+    });
+  } else { // not used now. waiting for memcache
+    // timestamp = formData.Item.timestamp;
+    // need here the code to ignore timestam comparison
+    deepCompareItems(latest, formData, callback);
+    // formData.Item.timestamp = timestamp;
+  }
+  // console.log('latestPutItem: ', JSON.stringify(latestPutItem));
+}
+
+/*
+exports.conditionalPutStateItem = function (payload, callback) { // put the item only if it's different from the latest put
+  conditionalPutHashedItem("State", payload, callback);
+}
+
+conditionalPutHashedItem = function(hash, payload, callback) {
+}
+*/
+
 exports.putStateItem = function(payload, callback) {
+  putHashedItem(appendStateItemPeriod, payload, callback);
+}
+
+putHashedItem = function(appendCallback, payload, callback) {
   var formData = {
     TableName: config.AWS.dynamoDBtable,
     Item: {
-      period: "HashValue",
+      // period: hash, take care by append callback
       timestamp: new Date().getTime()
     }
   };
@@ -32,14 +130,23 @@ exports.putStateItem = function(payload, callback) {
     // console.log('Adding payload: ', payload[prop]);
   }
 
-  global.NODE_docClient.putItem(formData, function(err, data) {
-    if (!!err) {
-      console.log('putStateItem: putItem failed: ', err);
+  appendCallback(formData, function(err, data) {
+    if (!err) {
+      global.NODE_docClient.putItem(formData, function(err, data) {
+        if (!!err) {
+          console.log('putStateItem: putItem failed: ', err);
+        } else {
+// isEqualLatestPutItem(formData);
+          updateLatestPutItem(formData); // doing nothing, waiting for memcache
+        }
+        if (!!callback)
+          callback(err, data);
+        else
+          return({err: err || {}, data: data || {}});
+      });
+    } else {
+      console.error('putHashedItem: appendCallback(', appendCallback, ') failed');
     }
-    if (!!callback)
-      callback(err, data);
-    else
-      return({err: err || {}, data: data || {}});
   });
 }
 
