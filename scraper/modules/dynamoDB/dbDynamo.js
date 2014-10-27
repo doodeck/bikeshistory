@@ -11,9 +11,14 @@ AWS.config.update({region: config.AWS.region });
 var tables = require('./createTables');
 var putHashedItem, conditionalPutHashedItem; // function to save either state or fullState item
 // memcache ... var latestPutItem = {};
-var appendStateItemPeriod;
+var appendStateItemPeriod, appendFullItemPeriod;
 var formDataToQuery;
 var updateLatestPutItem, isEqualLatestPutItem, deepCompareItems;
+
+appendFullItemPeriod = function(formData, callback) {
+  formData.Item.period = "Full"; // ultimately it should be hashed with a tmestamp derivative as well, e.g. "Full-2014-11"
+  callback(null, { formData: formData });
+}
 
 appendStateItemPeriod = function(formData, callback) {
   formData.Item.period = "State"; // ultimately it should be hashed with a tmestamp derivative as well, e.g. "State-2014-11"
@@ -84,6 +89,7 @@ isEqualLatestPutItem = function(formData, callback) {
                 console.log('docClient query ok, but item not found');
                 callback(null /*err*/, {equal: false});
             } else {
+                var preservedTimestamp;
                 /*
                 console.log('docClient happily retrieved: ' + data.Items[0].timestamp.toString());
                 console.log(data); // print the item data
@@ -92,8 +98,16 @@ isEqualLatestPutItem = function(formData, callback) {
                 latest.TableName = formData.TableName;
                 latest.Item = data.Items[0];
 
+                preservedTimestamp = latest.Item.timestamp; // TODO: do it nicer SVP
                 latest.Item.timestamp = formData.Item.timestamp; // ignore timestamp by comparison
-                deepCompareItems(latest, formData, callback);
+                deepCompareItems(latest, formData,
+                  function(err, data) {
+                    if (!!data && !!data.equal) {
+                      latest.Item.timestamp = preservedTimestamp;
+                      callback(err, {equal: data.equal, item: latest.Item});
+                    } else
+                      callback(err, {equal: data.equal}); // data.equal === false
+                  });
             }
         }
     });
@@ -104,6 +118,10 @@ isEqualLatestPutItem = function(formData, callback) {
     // formData.Item.timestamp = timestamp;
   }
   // console.log('latestPutItem: ', JSON.stringify(latestPutItem));
+}
+
+exports.conditionalPutFullItem = function (payload, callback) { // put the item only if it's different from the latest put
+  putHashedItem(appendFullItemPeriod, true, payload, callback);
 }
 
 exports.conditionalPutStateItem = function (payload, callback) { // put the item only if it's different from the latest put
@@ -139,7 +157,7 @@ putHashedItem = function(appendCallback, conditional, payload, callback) {
             updateLatestPutItem(formData); // doing nothing, waiting for memcache
           }
           if (!!callback)
-            callback(err, data);
+            callback(err, { item: formData.Item });
         });
       };
 
@@ -147,7 +165,7 @@ putHashedItem = function(appendCallback, conditional, payload, callback) {
         doPutItem();
       } else {
         isEqualLatestPutItem(formData, function(err, data) {
-          debugger;
+          // debugger;
           if (!!err || !data || !data.equal)
             doPutItem();
           else

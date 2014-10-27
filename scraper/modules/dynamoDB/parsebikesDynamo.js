@@ -73,45 +73,53 @@ exports.pushFirebaseRecord = pushFirebaseRecord = function(buffer) {
   pushFirebaseFullState(fullState);
 }
 
+// it may modify the fullState which it got passed
 exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
   var shortState = [], station, nameHash;
   var newItem, currentTimestamp, adminUpdateRef;
+  var payload, fullPayload;
+
 
   for (station in fullState) {
     // console.log('station: ', station, ', ', fullState[station]);
     nameHash = hash(fullState[station].LocalTitle);
-    shortState.push({ A: fullState[station].AvailableBikesCount,
-                      F: fullState[station].FreeLocksCount,
-		      H: /*d2h(*/nameHash/*)*/ });
+    shortState.push({ avail: fullState[station].AvailableBikesCount,
+                      free: fullState[station].FreeLocksCount
+		      // hash: /*d2h(*/nameHash/*)*/
+        });
+    // TODO: LocalInformation can be parsed to retrieve various kind of bikes available
+
+    delete fullState[station].AvailableBikesCount;
+    delete fullState[station].FreeLocksCount;
+    delete fullState[station].LocalInformation;
+    delete fullState[station].StatusPercentageNumber;
   }
 
-    // console.log('about to put: ', snapshotVal[prop]);
-  /*
-  var formData = {
-    TableName: config.AWS.dynamoDBtable,
-    Item: {
-      period: "HashValue",
-      timestamp: new Date().getTime(), // as of today (Oct'14) there is no server time available
-      state: shortState
-    }
+  fullPayload = {
+    state: fullState
   };
-  */
-  var payload = {
-    state: shortState
-  };
-  // dynamodb.putItem(formData, function(err, data) {
-  // dbClient.docClient.putItem(formData, function(err, data) {
-  // dbClient.putStateItem(payload, function(err, data) {
-  dbClient.conditionalPutStateItem(payload, function(err, data) {  
+
+  dbClient.conditionalPutFullItem(fullPayload, function(err, data) {  
     if (!!err) {
       console.log('Insert failed: ', err, ', item ', shortState);
     } else {
-      // console.log('Insert ok: ', formData.Item.timestamp /*docs[0]["_id"],*/);
+      // console.log('Insert Full ok: ', data /*docs[0]["_id"],*/);
+
+      payload = {
+        fullId: data.item.timestamp,
+        state: shortState
+      };
+      // dynamodb.putItem(formData, function(err, data) {
+      // dbClient.docClient.putItem(formData, function(err, data) {
+      // dbClient.putStateItem(payload, function(err, data) {
+      dbClient.conditionalPutStateItem(payload, function(err, data) {  
+        if (!!err) {
+          console.log('Insert failed: ', err, ', item ', shortState);
+        } else {
+          // console.log('Insert ok: ', formData.Item.timestamp /*docs[0]["_id"],*/);
+        }
+      });
+
     }
   });
-
-  /* now take care of
-          conditionalPushRecord(fullState, currentTimestamp);
-          to a different table I guess
-  */
 }

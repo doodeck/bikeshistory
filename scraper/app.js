@@ -71,6 +71,10 @@ app.use(function(err, req, res, next) {
 });
 
 setInterval(parseBikesModule.parseBikes, config.scrapeInterval);
+/* TODO:
+get rid of interval in favour of timeout, otherwise you may get 
+simultaneous calls and simialar problems
+*/
 
 memwatch.on('leak', function(info) {
   console.log('on leak: ', info);
