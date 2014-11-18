@@ -9,7 +9,6 @@
       display: none;
     }
   </style>
-  <script src="js/config.js"></script>
   <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
   <script>
     // include angular loader, which allows the files to load in any order
@@ -31,20 +30,19 @@
     $script([
       'bower_components/angular/angular.js',
       'bower_components/angular-route/angular-route.js',
-      'bower_components/firebase/firebase.js',
-      'bower_components/angularfire/dist/angularfire.js',
-      'js/app.js',
-      'js/services.js',
-      'js/controllers.js',
-      'js/filters.js',
-      'js/directives.js'
+      'app.js',
+      'view1/view1.js',
+      'view2/view2.js',
+      'components/version/version.js',
+      'components/version/version-directive.js',
+      'components/version/interpolate-filter.js'
     ], function() {
       // when all is done, execute bootstrap angular application
       angular.bootstrap(document, ['myApp']);
     });
   </script>
   <title>My AngularJS App</title>
-  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="app.css">
 </head>
 <body ng-cloak>
   <ul class="menu">

@@ -4,7 +4,6 @@
   "description": "History of the bikes usage",
   "main": "app/index.html",
   "license": "MIT",
-  "homepage": "https://bikeshistory.firebaseapp.com/",
   "private": true,
   "ignore": [
     "**/.*",
@@ -21,10 +20,6 @@
     "angular-route": "1.2.x",
     "angular-loader": "1.2.x",
     "angular-mocks": "~1.2.x",
-    "html5-boilerplate": "~4.3.0",
-    "firebase": "~1.0.x",
-    "firebase-simple-login": "~1.6.x",
-    "angularfire": "~0.8.x",
-    "mockfirebase": "~0.2.9"
+    "html5-boilerplate": "~4.3.0"
   }
 }
