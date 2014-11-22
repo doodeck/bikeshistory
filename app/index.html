@@ -20,6 +20,18 @@
     <li><a href="#/view1">view1</a></li>
     <li><a href="#/view2">view2</a></li>
   </ul>
+  <tabset>
+    <tab heading="Static title">Static content</tab>
+    <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" disabled="tab.disabled">
+      {{tab.content}}
+    </tab>
+    <tab select="alertMe()">
+      <tab-heading>
+        <i class="glyphicon glyphicon-bell"></i> Alert!
+      </tab-heading>
+      I've got an HTML heading, and a select callback. Pretty cool!
+    </tab>
+  </tabset>
 
   <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -34,7 +46,7 @@
   -->
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
-  <script src="bower_components/angular-bootstrap/ui-bootstrap.js"></script>
+  <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
   <script src="app.js"></script>
   <script src="view1/view1.js"></script>
   <script src="view2/view2.js"></script>
