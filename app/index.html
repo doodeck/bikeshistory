@@ -32,7 +32,7 @@
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-          <li ng-repeat="navitem in navigation" class="{{navitem.active}}"><a href="{{navitem.route}}">{{navitem.description}}</a></li>
+          <li ng-repeat="navitem in navigation" class="{{navitem.active}}"><a href="{{navitem.route}}">{{navitem.description}} <span class="{{navitem.srClass}}">{{navitem.srText}}</span></a></li>
           <!-- TODO: take care of screen reader <span class="sr-only">(current)</span> -->
         </ul>
       </div><!-- /.navbar-collapse -->
