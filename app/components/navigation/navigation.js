@@ -6,25 +6,32 @@ angular.module('myApp.navigation', [])
 .controller('NavigationCtrl', ['$scope', '$location',
 	function($scope, $location) {
 		$scope.hello = "NavigationCtrl was here";
+		$scope.navigation = [
+			{
+				pattern: '/view1',
+				route: '#/view1',
+				description: 'View 1',
+				active: "" // set automatically in the event handler
+			},
+			{
+				pattern: '/view2',
+				route: '#/view2',
+				description: 'View 2',
+				active: ""
+			}
+		];
 
 		$scope.$on('$locationChangeStart', function(event, next, current) {
 			console.log('locationChangeStart: ', event, next, current);
 
 			var path = $location.path(), routeIndex = -1;
-			if (path.indexOf('/view2') >= 0)
-				routeIndex = 1;
-			else if (path.indexOf('/view1') >= 0)
-				routeIndex = 0;
-			$scope.navigation = [
-				{
-					active: (routeIndex === 0 ? "active" : "")
-				},
-				{
-					active: (routeIndex === 1 ? "active" : "")
-				}
-			];
-
-			// <li class="active"><a href="#/view1">View 1<span class="sr-only">(current)</span></a></li>
+			$scope.navigation.forEach(function(value, index, ar) {
+				console.log('iterating: ', value, index, ar);
+				if (path.indexOf(value.pattern) >= 0)
+					value.active = "active";
+				else
+					value.active = "";
+			});
 
 		});
 		$scope.$on('$locationChangeSuccess', function(event, next, current) {
