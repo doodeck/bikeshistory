@@ -22,6 +22,14 @@ angular.module('myApp.navigation', [])
 				active: "",
 				srClass: "", // ~
 				srText: "" // ~
+			},
+			{
+				pattern: '/browsedb',
+				route: '#/browsedb',
+				description: 'Browse DB',
+				active: "",
+				srClass: "", // ~
+				srText: "" // ~
 			}
 		];
 
