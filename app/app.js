@@ -14,7 +14,7 @@ angular.module('myApp', [
 ])
 .config(function(AWSServiceProvider) {
   AWSServiceProvider
-    .setArn(
+    .setDynamoParams(
       'arn:aws:iam::915133436062:role/google-web-role');
 })
 .config(['$routeProvider', function($routeProvider) {
