@@ -3,7 +3,15 @@
 'use strict';
 
 angular.module('myApp.credentials', [])
-.factory('AWSService', function($q, $cacheFactory) {
+// .factory(
+.provider('AWSService', function() {
+	var self = this;
+
+  self.setArn = function(arn) {
+    console.log('setting arn:', arn);
+  }
+
+	self.$get = function($q, $cacheFactory) {
 	var dynamoCache = $cacheFactory('dynamo'),
 	credentialsDefer = $q.defer(),
 	credentialsPromise = credentialsDefer.promise;
@@ -11,6 +19,10 @@ angular.module('myApp.credentials', [])
 
 	var shinyNewServiceInstance = {
 		// "arn:aws:dynamodb:us-east-1:123456789012:table/books_table"
+		  setArn: function(arn) {
+		    console.log('setting arn:', arn);
+		  },
+
 		dynamoBikesRO: function() {
 		  // console.log('AWSService: making promises');
 		  var params = {TableName: 'bikeshistory'}; // TODO: get it from a service config
@@ -36,4 +48,5 @@ angular.module('myApp.credentials', [])
 	};
 	// factory function body that constructs shinyNewServiceInstance
 	return shinyNewServiceInstance;
+}
 });

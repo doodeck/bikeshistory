@@ -11,7 +11,12 @@ angular.module('myApp', [
   'myApp.browsedb',
   'myApp.version',
   'myApp.credentials'
-]).
-config(['$routeProvider', function($routeProvider) {
+])
+.config(function(AWSServiceProvider) {
+  AWSServiceProvider
+    .setArn(
+      'arn:aws:iam::915133436062:role/google-web-role');
+})
+.config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({redirectTo: '/view1'});
 }]);
