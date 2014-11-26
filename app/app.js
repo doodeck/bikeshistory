@@ -12,10 +12,24 @@ angular.module('myApp', [
   'myApp.version',
   'myApp.credentials'
 ])
-.config(function(AWSServiceProvider) {
+.config(function(AWSServiceProvider) { // is providing the .provider('AWSService', ...
   AWSServiceProvider
-    .setDynamoParams(
-      'arn:aws:iam::915133436062:role/google-web-role');
+    .setDynamoParams({
+      TableName: 'bikeshistory',
+      region: 'eu-west-1',
+      accessKeyId: 'AKIAJIZZB77YPOOB35QQ', // these are very limited read-only credentials. They are exposing only a single table, which
+      secretAccessKey: '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' // content is supposed to be public anyway.
+      // NEVER commit credentials which give access beyond that single table, see the
+      // template components/credentails/policy.acl file how they should look like
+      /*
+      Addendum:
+      Still, the moment I published the above credentials to github, AWS generated an automated
+      support case with the subject "Your account has been compromised". Having failed to react
+      20 hours later I received a phone call from a friendly AWS consultant, who informed
+      me, that they do not allow publishing valid access keys to the outside world. So now
+      the above key/secret are no longer valid AWS credentials...
+      */
+  });
 })
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({redirectTo: '/view1'});

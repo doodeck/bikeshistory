@@ -7,8 +7,11 @@ angular.module('myApp.credentials', [])
 .provider('AWSService', function() {
 	var self = this;
 
+	self.params = undefined;
+
 	self.setDynamoParams = function(params) {
 		console.log('setting setDynamoParams:', params);
+		self.params = params;
 	}
 
 	self.$get = function($q, $cacheFactory) {
@@ -20,28 +23,21 @@ angular.module('myApp.credentials', [])
 	var shinyNewServiceInstance = {
 		// "arn:aws:dynamodb:us-east-1:123456789012:table/books_table"
 		dynamoBikesRO: function() {
-		  // console.log('AWSService: making promises');
-		  var params = {TableName: 'bikeshistory'}; // TODO: get it from a service config
+		  console.log('AWSService: making promises with: ', self.params);
 
 		  var d = $q.defer();
-		  credentialsPromise.then(function(credentials) {
-		  	console.log('AWSService: promise then');
+		  credentialsPromise.then(function(params) {
+		  	console.log('AWSService: promise then, params: ', self.params);
 			var table = dynamoCache.get(JSON.stringify(params));
 			if (!table) {
-				// these are very limited read-only credentials. They are exposing only a single table, which
-				// content is supposed to be public anyway.
-				params.credentials = credentials;
-				params.region = 'eu-west-1'; // TODO: service provider
 				var table = new AWS.DynamoDB(params);
 				dynamoCache.put(JSON.stringify(params), table);
 			};
 			d.resolve(table);
 		  });
-		  credentialsDefer.resolve(new AWS.Credentials('AKIAJIZZB77YPOOB35QQ', 'QaOQ+yk7hKsXFdJfrqBdudD0NNPdvCt3LaQB9FUK')); // sure no promise was in fact needed here
+		  if (!!self.params)
+		  	credentialsDefer.resolve(self.params);
 		  return d.promise;
-		},
-		setDynamoParams: function(params) {
-			console.log('shinyNewServiceInstance::setDynamoParams:', params);
 		}
 	};
 
