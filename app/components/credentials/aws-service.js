@@ -9,8 +9,8 @@ angular.module('myApp.credentials', [])
 
 	self.params = undefined;
 
-	self.setDynamoParams = function(params) {
-		console.log('setting setDynamoParams:', params);
+	self.setAWSparams = function(params) {
+		console.log('setting setAWSparams:', params);
 		self.params = params;
 	}
 
@@ -19,26 +19,16 @@ angular.module('myApp.credentials', [])
 	    credentialsDefer = $q.defer(),
 	    credentialsPromise = credentialsDefer.promise;
 	// console.log('AWSService initialized');
-	var assumeWebIdentityCredentials = function(callback) {
-		AWS.config.region = 'eu-west-1';
-		// var creds = 
-		AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-			AccountId: '915133436062',
-			IdentityPoolId: 'eu-west-1:eda60e6a-b2ce-47b2-b00a-060894261b8a',
-			RoleArn: 'arn:aws:iam::915133436062:role/Cognito_bikeshistory_ROUnauth_DefaultRole'
-		});
-		AWS.config.credentials.get(function(err) {
+	var assumeWebIdentityCredentials = function(params, callback) {
+		AWS.config.region = params.dynamoDB.region; // 'eu-west-1';
+		var creds = /*AWS.config.credentials =*/ new AWS.CognitoIdentityCredentials(
+			params.cognito
+		);
+		/*AWS.config.credentials*/ creds.get(function(err) {
 			if (!err) {
-				console.log("Cognito Identity Id: " + AWS.config.credentials.identityId);
-				callback(undefined, AWS.config.credentials);
+				console.log("Cognito Identity Id: " + /*AWS.config.credentials*/ creds.identityId);
+				callback(undefined, /*AWS.config.credentials*/ creds);
 
-				/*
-				AWS.config.credentials = new AWS.WebIdentityCredentials({
-				  RoleArn: 'arn:aws:iam::1234567890:role/WebIdentity',
-				  WebIdentityToken: 'ABCDEFGHIJKLMNOP', // token from identity service
-				  RoleSessionName: 'web' // optional name, defaults to web-identity
-				});
-				*/
 			} else {
 				console.log('Cognito.get failed: ', err);
 				callback(err, undefined);
@@ -53,20 +43,17 @@ angular.module('myApp.credentials', [])
 
 		  var d = $q.defer();
 		  credentialsPromise.then(function(params) {
-		  	/* works, but cannot be publicly posted to github, without triggering an immediate response from AWS security team
-		  	var creds = new AWS.Credentials('AKIAIGN**********LUA', '****************************************');
-			AWS.config.credentials = creds;
-			*/
 		  	/* params.credentials = creds; */
 
 		  	console.log('AWSService: promise then, params: ', params);
-			var table = dynamoCache.get(JSON.stringify(params));
+			var table = dynamoCache.get(JSON.stringify(params.dynamoDB));
 			if (!table) {
-				assumeWebIdentityCredentials(function(error, credentials) {
-				    console.log('assumeWebIdentityCredentials: ', error, credentials);		
-					/*var*/ table = new AWS.DynamoDB(params);
-					table.credentials = credentials;
-					dynamoCache.put(JSON.stringify(params), table);
+				assumeWebIdentityCredentials(params, function(error, credentials) {
+				    console.log('assumeWebIdentityCredentials: ', error, credentials);
+				    params.dynamoDB.credentials = credentials;	
+					/*var*/ table = new AWS.DynamoDB(params.dynamoDB);
+					// table.credentials = credentials;
+					dynamoCache.put(JSON.stringify(params.dynamoDB), table);
 					d.resolve(table);
 				});
 			} else {

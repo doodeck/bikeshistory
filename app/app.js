@@ -14,21 +14,18 @@ angular.module('myApp', [
 ])
 .config(function(AWSServiceProvider) { // is providing the .provider('AWSService', ...
   AWSServiceProvider
-    .setDynamoParams({
-      TableName: 'bikeshistory',
-      // accessKeyId: 'AKIAJIZZB77YPOOB35QQ', // these are very limited read-only credentials. They are exposing only a single table, which
-      // secretAccessKey: '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' // content is supposed to be public anyway.
-      region: 'eu-west-1',
-      // NEVER commit credentials which give access beyond that single table, see the
-      // template components/credentails/policy.acl file how they should look like
-      /*
-      Addendum:
-      Still, the moment I published the above credentials to github, AWS generated an automated
-      support case with the subject "Your account has been compromised". Having failed to react
-      20 hours later I received a phone call from a friendly AWS consultant, who informed
-      me, that they do not allow publishing valid access keys to the outside world. So now
-      the above key/secret are no longer valid AWS credentials...
-      */
+    .setAWSparams({
+      dynamoDB: {
+        TableName: 'bikeshistory',
+        region: 'eu-west-1',
+      },
+      cognito: {
+        AccountId: '915133436062',
+        IdentityPoolId: 'eu-west-1:eda60e6a-b2ce-47b2-b00a-060894261b8a',
+        RoleArn: 'arn:aws:iam::915133436062:role/Cognito_bikeshistory_ROUnauth_DefaultRole'
+        // it looks like (4 hours after) committing Cogito ids is not triggerting the rapid response of AWS ERT,
+        // doing so with the valid credentials would have caused such an action
+      }
   });
 })
 .config(['$routeProvider', function($routeProvider) {
