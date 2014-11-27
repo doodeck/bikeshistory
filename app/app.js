@@ -16,9 +16,9 @@ angular.module('myApp', [
   AWSServiceProvider
     .setDynamoParams({
       TableName: 'bikeshistory',
+      // accessKeyId: 'AKIAJIZZB77YPOOB35QQ', // these are very limited read-only credentials. They are exposing only a single table, which
+      // secretAccessKey: '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' // content is supposed to be public anyway.
       region: 'eu-west-1',
-      accessKeyId: 'AKIAJIZZB77YPOOB35QQ', // these are very limited read-only credentials. They are exposing only a single table, which
-      secretAccessKey: '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' // content is supposed to be public anyway.
       // NEVER commit credentials which give access beyond that single table, see the
       // template components/credentails/policy.acl file how they should look like
       /*
