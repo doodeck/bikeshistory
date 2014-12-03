@@ -1,11 +1,11 @@
 <p>This is the partial for database browser.</p>
 {{test}}
 
-<h2>Total items count: {{itemsCount}}</h2>
+<h2 ng-cloak>Total items count: {{itemsCount}}</h2>
 
 <h2>The most recent item: </h2>
 <p>
-	<pre>
+	<pre ng-cloak>
 	{{recent | json}}
 	</pre>
 </p>
