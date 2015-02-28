@@ -1,9 +1,10 @@
 {
-  "name": "angular-seed",
-  "private": true,
-  "version": "0.0.1",
+  "name": "bikeshistory",
+  "private": false,
+  "version": "0.0.2",
   "description": "Frontend for bikeshistory Database",
   "repository": "https://github.com/doodeck/bikeshistory",
+  "author": " <doodeck@users.noreply.github.com>",
   "license": "MIT",
   "devDependencies": {
     "karma": "~0.10",
