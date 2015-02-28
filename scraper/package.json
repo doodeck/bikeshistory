@@ -1,5 +1,5 @@
 {
-  "name": "bikeshistory/scraper",
+  "name": "bikeshistory-scraper",
   "version": "0.0.4",
   "description": "Web content scraper for bikes history project",
   "private": false,
