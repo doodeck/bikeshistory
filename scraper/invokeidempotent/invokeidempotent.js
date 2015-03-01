@@ -10,6 +10,7 @@ var AWS = require('aws-sdk');
 AWS.config.update({region: config.region});
 // not needed, embedded in lambda execution role ... AWS.config.update({accessKeyId: 'akid', secretAccessKey: 'secret'});
 var payload = require(config.payloadModule);
+// var parseBikesModule = require('../modules/parsebikes.js');
 
 var lambda = new AWS.Lambda({});
 var dynamodb = new AWS.DynamoDB({});
@@ -183,6 +184,11 @@ exports.handler = function(event, context) {
 
   if (!!payload)
     payload.handler();
+
+  /*
+  if (!!parseBikesModule)
+    parseBikesModule.parseBikes();
+  */
 };
 
 vanillaTest = function(event,context) {
