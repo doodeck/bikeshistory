@@ -13,7 +13,7 @@ var CONFIG = {
   AWS: {
   	configFile: 'credentials.aws.js',
   	region: 'eu-west-1',
-    dynamoDBtable: 'bikeshistory'
+    dynamoDBtable: 'bikeshistorytmp'
     }
 };
 
