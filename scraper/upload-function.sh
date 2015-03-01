@@ -5,7 +5,7 @@
 
 mkdir -p tmp
 zip -r tmp/index.zip \
-  invokeidempotent/*.js invokeidempotent/modules/ \
+  *.js invokeidempotent/*.js invokeidempotent/modules/ \
   lib/ modules/ public/ routes/ views/ node_modules/ ; \
   aws --profile lambda lambda upload-function --region eu-west-1 \
   --function-name bikeslambda \
