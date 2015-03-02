@@ -9,7 +9,9 @@ var config = require('../../config');
 var AWS = require('aws-sdk'); 
 var dynamodb = new AWS.DynamoDB();
 
-AWS.config.loadFromPath('./' + config.AWS.configFile);
+if (!config.AWS.usingLambda) {
+  AWS.config.loadFromPath('./' + config.AWS.configFile);
+}
 AWS.config.region = config.AWS.region;
 
 /* check that:
