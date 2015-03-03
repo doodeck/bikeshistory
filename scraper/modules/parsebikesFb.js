@@ -18,7 +18,7 @@ d2h = function(d) {
 }
 
 // conditionally push long record, depending on the last modification time
-conditionalPushRecord = function(fullState, currentTimestamp) {
+conditionalPushRecord = function(fullState, currentTimestamp, callback) {
   var newRecord, childRef, delta;
   var writeInterval = 86400000; // milliseconds
 
@@ -41,20 +41,30 @@ conditionalPushRecord = function(fullState, currentTimestamp) {
         function(error) {
           if (!!error) {
             console.log('newRecord.setWithPriority failed: ', error);
+            if (!!callback) {
+              callback(error, { msg: "setWithPriority failed" });
+            }
           } else {
             newRecord.once('value', function(dataSnapshot) {
             /*console.log('newRecord.setWithPriority success, writing into', childRef,
                         ', content: ', dataSnapshot.val());*/
               childRef.set(dataSnapshot.val().timestamp); // newRecord.timestamp);
+              if (!!callback) {
+                callback(undefined, { msg: "conditionalPushRecord success" });
+              }
           });
         }
        });
+     } else {
+      if (!!callback) {
+        callback(undefined, { msg: "conditionalPushRecord(2) success" });
+      }
      }
    });
 }
 
 
-exports.pushFirebaseRecord = pushFirebaseRecord = function(buffer) {
+exports.pushFirebaseRecord = pushFirebaseRecord = function(buffer, callback) {
   // var re = /var mapDataLocations = [{.+}]/;
   var re = /var\s+mapDataLocations\s*=\s*(\[.+\])\s*\;/;
   var capture, fullState;
@@ -73,10 +83,10 @@ exports.pushFirebaseRecord = pushFirebaseRecord = function(buffer) {
   fullState = JSON.parse(capture);
 
   // console.log('fool: ', fullState);
-  pushFirebaseFullState(fullState);
+  pushFirebaseFullState(fullState, callback);
 }
 
-exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
+exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState, callback) {
   var shortState = [], station, nameHash;
   var newItem, currentTimestamp, adminUpdateRef;
 
@@ -94,16 +104,24 @@ exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
     function(error) {
       if (!!error) {
         console.log('newItem.setWithPriority failed: ', error);
+        if (!!callback) {
+          callback(error, { msg: "setWithPriority failed" });
+        }
       } else {
         newItem.once('value', function(dataSnapshot) {
-	  currentTimestamp = dataSnapshot.val().timestamp;
-	  // console.log('got current timestamp: ', currentTimestamp);
-          conditionalPushRecord(fullState, currentTimestamp);
+    	  currentTimestamp = dataSnapshot.val().timestamp;
+    	  // console.log('got current timestamp: ', currentTimestamp);
+        conditionalPushRecord(fullState, currentTimestamp, function(err, data) {
 
-	  // push the latest update time, just for debug
+          // push the latest update time, just for debug
           adminUpdateRef = myFirebaseRef.child('admin/latestWritten');
-	  adminUpdateRef.set(currentTimestamp);
-	});
-      }
-    });
+          adminUpdateRef.set(currentTimestamp);
+
+          if (!!callback) {
+            callback(undefined, { msg: "pushFirebaseFullState() success" });
+          }
+        });
+    	});
+    }
+  });
 }

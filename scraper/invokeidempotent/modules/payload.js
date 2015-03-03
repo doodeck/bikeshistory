@@ -6,6 +6,7 @@ exports.handler = function(callback) {
   var startingMoment = +new Date();
   console.log('payload: ', new Date(startingMoment).toString());
 
+  /*
   var index = 0;
   var theInterval = setInterval(function() {
     var delta = +new Date() - startingMoment;
@@ -15,5 +16,7 @@ exports.handler = function(callback) {
       callback(undefined, { status: true, msg: "Quit happily" });
     }
   }, (10 * 100));
-  // parseBikesModule.parseBikes();
+  */
+
+  parseBikesModule.parseBikes(callback);
 }

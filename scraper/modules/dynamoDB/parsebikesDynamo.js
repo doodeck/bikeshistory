@@ -51,7 +51,7 @@ conditionalPushRecord = function(fullState, currentTimestamp) {
 }
 
 
-exports.pushFirebaseRecord = pushFirebaseRecord = function(buffer) {
+exports.pushFirebaseRecord = pushFirebaseRecord = function(buffer, callback) {
   // var re = /var mapDataLocations = [{.+}]/;
   var re = /var\s+mapDataLocations\s*=\s*(\[.+\])\s*\;/;
   var capture, fullState;
@@ -70,11 +70,11 @@ exports.pushFirebaseRecord = pushFirebaseRecord = function(buffer) {
   fullState = JSON.parse(capture);
 
   // console.log('fool: ', fullState);
-  pushFirebaseFullState(fullState);
+  pushFirebaseFullState(fullState, callback);
 }
 
 // it may modify the fullState which it got passed
-exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
+exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState, callback) {
   var shortState = [], station, nameHash;
   var newItem, currentTimestamp, adminUpdateRef;
   var payload, fullPayload;
@@ -102,6 +102,9 @@ exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
   dbClient.conditionalPutFullItem(fullPayload, function(err, data) {  
     if (!!err) {
       console.log('Insert failed: ', err, ', item ', shortState);
+      if (!!callback) {
+        callback(err, { msg: "conditionalPutFullItem failed" });
+      }
     } else {
       // console.log('Insert Full ok: ', data /*docs[0]["_id"],*/);
 
@@ -115,11 +118,16 @@ exports.pushFirebaseFullState = pushFirebaseFullState = function(fullState) {
       dbClient.conditionalPutStateItem(payload, function(err, data) {  
         if (!!err) {
           console.log('Insert failed: ', err, ', item ', shortState);
+          if (!!callback) {
+            callback(err, { msg: "conditionalPutStateItem failed" });
+          }
         } else {
           // console.log('Insert ok: ', formData.Item.timestamp /*docs[0]["_id"],*/);
+          if (!!callback) {
+            callback(undefined, { msg: "pushFirebaseFullState successful" });
+          }
         }
       });
-
     }
   });
 }

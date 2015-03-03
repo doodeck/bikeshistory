@@ -53,15 +53,15 @@ parseBikesHttps = function() {
   });
 }
 
-parseBikesRequest = function() {
+parseBikesRequest = function(callback) {
   request(scrapeURL, function(error, response, body) {
     if (!error && response.statusCode == 200) {
       // console.log(body);
       if (config.dbDriver.firebase) {
-        bikesDbFb.pushFirebaseRecord(body);
+        bikesDbFb.pushFirebaseRecord(body, callback);
       }
       if (config.dbDriver.dynamoDB) {
-        bikesDbDynamo.pushFirebaseRecord(body);
+        bikesDbDynamo.pushFirebaseRecord(body, callback);
       }
     }
   });
@@ -84,8 +84,8 @@ parseBikesTest = function() {
   testArrayIndex %= testArray.length;
 }
 
-exports.parseBikes = function() {
+exports.parseBikes = function(callback) {
   // return parseBikesTest();
-  return parseBikesRequest();
+  return parseBikesRequest(callback);
   // return parseBikesHttps();
 }

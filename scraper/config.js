@@ -14,7 +14,7 @@ var CONFIG = {
   	configFile: 'credentials.aws.js',
   	region: 'eu-west-1',
     dynamoDBtable: 'bikeshistorytmp',
-    usingLambda: true
+    usingLambda: true // TODO: should be set automatically
     }
 };
 
