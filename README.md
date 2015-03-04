@@ -53,4 +53,4 @@ In AWS xonsole open IAM module. Edit the roles. Edit the unathenticated role (e.
 
 Running as Lambda Function
 --------------------------
-The scraper module is capable of being run as the Lambda function. The meager resources needed (128MB) make it capable of fitting within the indefinite AWS free quota. There is a convenience upload script to facilitate uploading. The Preceding npm install is still required.
+The scraper module is capable of being run as the Lambda function. The meager resources needed (128MB) make it capable of fitting within the indefinite AWS free quota. There is a convenience upload script to facilitate uploading. The preceding npm install is still required.
