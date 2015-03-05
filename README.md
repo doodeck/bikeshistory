@@ -1,3 +1,5 @@
+## The Web Scraper
+
 The scraper is really working, albeit leaking memory:
 ```
 cd bikeshistory/scraper
@@ -19,7 +21,58 @@ cd bikeshistory
 npm start
 ```
 
-The fronted is listening on port 8000 by default.
+The server is listening on port 8000 by default.
+
+
+Running as Lambda Function
+--------------------------
+The scraper module is capable of being run as the Lambda function. The meager resources needed (128MB) make it capable of fitting within the indefinite AWS free quota. There is a convenience upload script to facilitate uploading. The Preceding npm install is still required.
+
+### Lambda Function Execution Role
+
+The default role created by the AWS Console/CLI is not enough. You need additional rights to access DynamoDB and execute the Lambda function (recursion, this is how the daemon functionality works). The sample policy may look like this:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:*"
+      ],
+      "Resource": "arn:aws:logs:*:*:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+         "lambda:*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}```
+This is of course granting too much rights (all Lambda and all DynamoDB operations/resources), but since this function is executed internally, from the context of authorized user, there is no risk of misuse.
+
+
+## The Frontend
 
 ### Create AWS Cognito identity pool
 Open AWS Console, select Cognito module.
@@ -50,7 +103,3 @@ In AWS xonsole open IAM module. Edit the roles. Edit the unathenticated role (e.
   ]
 }
 ```
-
-Running as Lambda Function
---------------------------
-The scraper module is capable of being run as the Lambda function. The meager resources needed (128MB) make it capable of fitting within the indefinite AWS free quota. There is a convenience upload script to facilitate uploading. The Preceding npm install is still required.
