@@ -69,8 +69,9 @@ The default role created by the AWS Console/CLI is not enough. You need addition
       "Resource": "*"
     }
   ]
-}```
-This is of course granting too much rights (all Lambda and all DynamoDB operations/resources), but since this function is executed internally, from the context of authorized user, there is no risk of misuse.
+}
+```
+This policy is of course granting too much rights (all Lambda and all DynamoDB operations/resources), but since this function is executed internally, from the context of authorized user, there is no risk of misuse.
 
 
 ## The Frontend
