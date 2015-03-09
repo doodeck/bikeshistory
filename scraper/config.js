@@ -15,7 +15,8 @@ var CONFIG = {
   	region: 'eu-west-1',
     dynamoDBtable: 'bikeshistorytmp',
     usingLambda: true // TODO: should be set automatically
-    }
+    },
+  dynamic: {} // values set during program execution
 };
 
 // exports.config = CONFIG;

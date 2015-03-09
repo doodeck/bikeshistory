@@ -85,6 +85,22 @@ parseBikesTest = function() {
 }
 
 exports.parseBikes = function(callback) {
+  if (!callback) { // nice, but the code dependsnt on lambda yes/no is mostly called in the module initialization, so it's too late here
+    console.log('parseBikes called regular way');
+    config.dynamic.usingLambda = false;
+  } else {
+    console.log('parseBikes called from Lambda');
+    config.dynamic.usingLambda = true;
+  }
+  if (config.AWS.usingLambda !== config.dynamic.usingLambda) {
+    var hint = 'Mismatch between config.AWS.usingLambda and the reality, please update the config.js';
+    console.log(hint);
+    if (!!callback) {
+      callback({ error: hint }, { status: false, msg: hint });
+    } else {
+      return false;
+    }
+  }
   // return parseBikesTest();
   return parseBikesRequest(callback);
   // return parseBikesHttps();
