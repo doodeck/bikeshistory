@@ -13,7 +13,7 @@ var CONFIG = {
   AWS: {
   	configFile: 'credentials.aws.js',
   	region: 'eu-west-1',
-    dynamoDBtable: 'bikeshistorytmp',
+    dynamoDBtable: 'bikeshistory',
     usingLambda: true // TODO: should be set automatically
     },
   dynamic: {} // values set during program execution
