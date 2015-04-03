@@ -11,4 +11,5 @@ zip -r tmp/index.zip \
   --function-name bikeslambda \
   --function-zip tmp/index.zip \
   --role 'arn:aws:iam::915133436062:role/bikes_lambda_exec_role' --mode event \
-  --handler invokeidempotent/invokeidempotent.handler --runtime nodejs --timeout 60
+  --handler invokeidempotent/invokeidempotent.handler --runtime nodejs --timeout 58
+# Keep the timeout value in sync with the config.js
