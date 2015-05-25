@@ -4,7 +4,7 @@ The frontend demonstrating the content of the databases is running here:
 
 https://bikeshistory.firebaseapp.com/
 
-As of today, it's not writing to the Firebase DB, only to Dynamo. The main reason is much more generous free tier (25 GB).
+As of today, it's not writing to the Firebase DB, only to Dynamo. The main reason is much more generous free tier (25 GB). The bandwidth is limited though, which in this project (single threaded web scraper) doesn't matter.
 
 ## The Web Scraper
 
