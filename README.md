@@ -83,6 +83,8 @@ This policy is of course granting too much rights (all Lambda and all DynamoDB o
 
 Note, there is a script create-function.sh, which is creating the function. However, it assumes that the necessary AWS role has already been created and must be specified on the command line.
 
+Also, there is a function removal script delete-function.sh, which can also serve as an emergency break to stop the execution of lambda. Normally, it should be enough to delte the corresponding entry in DynamoDB.
+
 ## The Frontend
 
 ### Create AWS Cognito identity pool
