@@ -81,6 +81,7 @@ The default role created by the AWS Console/CLI is not enough. You need addition
 ```
 This policy is of course granting too much rights (all Lambda and all DynamoDB operations/resources), but since this function is executed internally, from the context of authorized user, there is no risk of misuse.
 
+Note, there is a script create-function.sh, which is creating the function. However, it assumes that the necessary AWS role has already been created and must be specified on the command line.
 
 ## The Frontend
 
