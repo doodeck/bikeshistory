@@ -13,7 +13,7 @@ zip -r tmp/index.zip \
 #  --function-zip tmp/index.zip \
 #  --role 'arn:aws:iam::915133436062:role/bikes_lambda_exec_role' --mode event \
 #  --handler invokeidempotent/invokeidempotent.handler --runtime nodejs --timeout 30
-# Keep the timeout value in sync with the config.js
+# Keep the timeout value in sync with the invokeidempotent/config.js
 aws --profile lambda lambda update-function-code --region eu-west-1 \
   --function-name bikeslambda \
   --zip-file fileb://tmp/index.zip

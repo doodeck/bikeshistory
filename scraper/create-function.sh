@@ -9,6 +9,7 @@ aws --profile lambda lambda create-function --region eu-west-1 \
   --runtime nodejs \
   --role 'arn:aws:iam::915133436062:role/bikes_lambda_exec_role' \
   --handler 'invokeidempotent/invokeidempotent.handler' \
-  --timeout 30 \
+  --timeout 50 \
   --memory-size 128 \
   --zip-file fileb://tmp/index.zip
+# Keep the timeout value in sync with the invokeidempotent/config.js
