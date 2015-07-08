@@ -1,7 +1,7 @@
 {
   "name": "bikeshistory",
   "private": false,
-  "version": "0.0.2",
+  "version": "0.2.1",
   "description": "Frontend for bikeshistory Database",
   "repository": "https://github.com/doodeck/bikeshistory",
   "author": " <doodeck@users.noreply.github.com>",
